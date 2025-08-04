@@ -1,0 +1,35 @@
+{
+	"name": "ProductCategoryStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ProductCategoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EnglishProductCategoryName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishProductCategoryName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchProductCategoryName",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "ProductCategoryStaging"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

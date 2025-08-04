@@ -1,0 +1,9 @@
+{
+	"name": "RuelRagpa-df",
+	"location": "southeastasia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "22b423d2-1be1-4b0d-ad76-c84333292c1c",
+		"tenantId": "43967052-c06e-49f2-ad09-f822faa0f00d"
+	}
+}
