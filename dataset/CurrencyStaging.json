@@ -1,0 +1,25 @@
+{
+	"name": "CurrencyStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CurrencyAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CurrencyName",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "CurrencyStaging"
+		}
+	}
+}

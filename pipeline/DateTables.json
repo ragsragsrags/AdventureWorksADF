@@ -1,0 +1,48 @@
+{
+	"name": "DateTables",
+	"properties": {
+		"activities": [
+			{
+				"name": "Populate DimDates",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AdventureWorksDW2022",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"parameters": [
+								{
+									"name": "StartYear",
+									"type": "Int32",
+									"value": "2005",
+									"direction": "Input"
+								},
+								{
+									"name": "EndYear",
+									"type": "Int32",
+									"value": "2014",
+									"direction": "Input"
+								}
+							],
+							"type": "NonQuery",
+							"text": "DECLARE @Dates TABLE\r\n(\r\n    [DateKey] [int] NOT NULL,\r\n    [FullDateAlternateKey] [date] NOT NULL\r\n)\r\n\r\nDECLARE @Date DATE = CAST('1/1/' + CAST(@StartYear AS NVARCHAR(4)) AS DATE)\r\n\r\nWHILE YEAR(@Date) <= @EndYear\r\nBEGIN\r\n    \r\n    INSERT INTO @Dates\r\n    (\r\n        DateKey,\r\n        FullDateAlternateKey\r\n    )\r\n    VALUES\r\n    (\r\n        (\r\n            (YEAR(@Date) * 10000) + \r\n            (MONTH(@Date) * 100) + \r\n            DAY(@Date)\r\n        ),\r\n        @Date\r\n    )\r\n\r\n\r\n    SET @Date = DATEADD(DAY, 1, @Date)\r\n\r\nEND\r\n\r\n\r\nINSERT INTO dbo.DimDate\r\n(\r\n    [DateKey],\r\n    [FullDateAlternateKey],\r\n    [DayNumberOfWeek],\r\n    [EnglishDayNameOfWeek],\r\n    [SpanishDayNameOfWeek],\r\n    [FrenchDayNameOfWeek],\r\n    [DayNumberOfMonth],\r\n    [DayNumberOfYear],\r\n    [WeekNumberOfYear],\r\n    [EnglishMonthName],\r\n    [SpanishMonthName],\r\n    [FrenchMonthName],\r\n    [MonthNumberOfYear],\r\n    [CalendarQuarter],\r\n    [CalendarYear],\r\n    [CalendarSemester],\r\n    [FiscalQuarter],\r\n    [FiscalYear],\r\n    [FiscalSemester]\r\n)\r\nSELECT\r\n    [DateKey] = D.DateKey,\r\n    [FullDateAlternateKey] = D.FullDateAlternateKey,\r\n    [DayNumberOfWeek] = DATEPART(WEEKDAY, D.FullDateAlternateKey),\r\n    [EnglishDayNameOfWeek] = DWT.EnglishDayNameOfWeek,\r\n    [SpanishDayNameOfWeek] = DWT.SpanishDayNameOfWeek,\r\n    [FrenchDayNameOfWeek] = DWT.FrenchDayNameOfWeek,\r\n    [DayNumberOfMonth] = DAY(D.FullDateAlternateKey),\r\n    [DayNumberOfYear] = DATEPART(DAYOFYEAR, D.FullDateAlternateKey),\r\n    [WeekNumberOfYear] = DATEPART(WEEK, D.FullDateAlternateKey),\r\n    [EnglishMonthName] = MYT.EnglishMonthName,\r\n    [SpanishMonthName] = MYT.SpanishMonthName,\r\n    [FrenchMonthName] = MYT.FrenchMonthName,\r\n    [MonthNumberOfYear] = MONTH(D.FullDateAlternateKey),\r\n    [CalendarQuarter] = DATEPART(QUARTER, D.FullDateAlternateKey),\r\n    [CalendarYear] = YEAR(D.FullDateAlternateKey),\r\n    [CalendarSemester] = \r\n        CASE\r\n            WHEN MONTH(D.FullDateAlternateKey) <= 6 THEN 1\r\n            ELSE 2\r\n        END,\r\n    [FiscalQuarter] = \r\n        CASE \r\n            WHEN MONTH(D.FullDateAlternateKey) BETWEEN 1 AND 3 THEN 3\r\n            WHEN MONTH(D.FullDateAlternateKey) BETWEEN 4 AND 5 THEN 4\r\n            WHEN MONTH(D.FullDateAlternateKey) BETWEEN 7 AND 9 THEN 1\r\n            ELSE 2\r\n        END,\r\n    [FiscalYear] = \r\n        CASE\r\n            WHEN MONTH(D.FullDateAlternateKey) <= 6 THEN YEAR(D.FullDateAlternateKey)\r\n            ELSE YEAR(D.FullDateAlternateKey) + 1\r\n        END,\r\n    [FiscalSemester] = \r\n        CASE\r\n            WHEN MONTH(D.FullDateAlternateKey) <= 6 THEN 2\r\n            ELSE 1\r\n        END\r\nFROM \r\n    @Dates D LEFT JOIN\r\n    Integration.DayOfWeekType DWT ON\r\n        DWT.DayNumberOfWeek = DATEPART(WEEKDAY, D.FullDateAlternateKey) LEFT JOIN\r\n    Integration.MonthOfYearType MYT ON\r\n        MYT.MonthNumberOfYear = MONTH(D.FullDateAlternateKey) LEFT JOIN\r\n    dbo.DimDate D2 ON\r\n        D2.DateKey = D.DateKey\r\nWHERE\r\n    D2.DateKey IS NULL"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"annotations": []
+	}
+}

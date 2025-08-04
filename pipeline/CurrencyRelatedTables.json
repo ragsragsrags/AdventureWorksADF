@@ -1,0 +1,401 @@
+{
+	"name": "CurrencyRelatedTables",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Currency Data to Staging",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [CurrencyAlternateKey] = C.CurrencyCode,\r\n    [CurrencyName] = C.[Name]\r\nFROM\r\n    Sales.Currency C\r\nORDER BY\r\n    C.[Name]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.CurrencyStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CurrencyName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CurrencyName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CurrencyStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Currency Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Currency Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\n\t[CurrencyAlternateKey] = CS.CurrencyAlternateKey,\n\t[CurrencyName] = CS.CurrencyName\nFROM\n\tIntegration.CurrencyStaging CS LEFT JOIN\n\tdbo.DimCurrency C ON\n\t\tC.CurrencyAlternateKey = CS.CurrencyAlternateKey\nWHERE \n\tC.CurrencyKey IS NULL\nORDER BY\n\tCS.CurrencyName",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CurrencyName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CurrencyName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "CurrencyStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DimCurrency",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Fact Currency Rate Data to Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Currency Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \r\n    [CurrencyAlternateKey] = CR.ToCurrencyCode,\r\n    [DateKey] = (\r\n        (YEAR(CR.CurrencyRateDate) * 10000) +\r\n        (MONTH(CR.CurrencyRateDate) * 100) + \r\n        DAY(CR.CurrencyRateDate)\r\n    ),\r\n    [AverageRate] = 1 / CR.AverageRate,\r\n    [EndOfDayRate] = 1 / CR.EndOfDayRate,\r\n    [Date] = CR.CurrencyRateDate\r\nFROM \r\n    Sales.CurrencyRate CR \r\nORDER BY\r\n    CR.CurrencyRateDate,\r\n    CR.ToCurrencyCode",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.FactCurrencyRateStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "AverageRate",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "AverageRate",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "EndOfDayRate",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "EndOfDayRate",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactCurrencyRateStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Fact Currency Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Fact Currency Rate Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [CurrencyKey] = C.CurrencyKey,\r\n    [DateKey] = FCRS.DateKey,\r\n    [AverageRate] = FCRS.AverageRate,\r\n    [EndOfDayRate] = FCRS.EndOfDayRate,\r\n    [Date] = FCRS.Date\t\r\nFROM\r\n    Integration.FactCurrencyRateStaging FCRS LEFT JOIN\r\n    dbo.DimCurrency C ON\r\n        C.CurrencyAlternateKey = FCRS.CurrencyAlternateKey LEFT JOIN\r\n    dbo.FactCurrencyRate FCR ON\r\n        FCR.DateKey = FCRS.DateKey AND\r\n        FCR.CurrencyKey = C.CurrencyKey\r\nWHERE \r\n    FCR.CurrencyKey IS NULL\r\nORDER BY\r\n    FCRS.Date,\r\n    FCRS.CurrencyAlternateKey",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CurrencyKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "CurrencyKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "DateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "AverageRate",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "AverageRate",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "EndOfDayRate",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "EndOfDayRate",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "FactCurrencyRateStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactCurrencyRate",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

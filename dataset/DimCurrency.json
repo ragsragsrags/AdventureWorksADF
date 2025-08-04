@@ -1,0 +1,30 @@
+{
+	"name": "DimCurrency",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CurrencyKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CurrencyAlternateKey",
+				"type": "nchar"
+			},
+			{
+				"name": "CurrencyName",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimCurrency"
+		}
+	}
+}

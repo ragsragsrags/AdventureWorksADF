@@ -1,0 +1,43 @@
+{
+	"name": "FactCurrencyRateStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CurrencyKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "AverageRate",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EndOfDayRate",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "FactCurrencyRateStaging"
+		}
+	}
+}

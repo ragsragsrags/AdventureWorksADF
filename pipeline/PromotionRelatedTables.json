@@ -23,7 +23,7 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "DELETE dbo.DimPromotion",
+						"preCopyScript": "DELETE Integration.PromotionStaging",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
