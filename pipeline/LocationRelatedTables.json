@@ -1,0 +1,541 @@
+{
+	"name": "LocationRelatedTables",
+	"properties": {
+		"activities": [
+			{
+				"name": "Migrate Sales Territory Data To Staging",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [SalesTerritoryAlternateKey] = ST.TerritoryID,\r\n    [SalesTerrirtoryRegion] = ST.Name,\r\n    [SalesTerritoryCountry] = CR.Name,\r\n    [SalesTerritoryGroup] = ST.[Group]\r\nFROM\r\n    Sales.SalesTerritory ST LEFT JOIN\r\n    Person.CountryRegion CR ON\r\n        CR.CountryRegionCode = ST.CountryRegionCode\r\nORDER BY\r\n    ST.TerritoryID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.SalesTerritoryStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerrirtoryRegion",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryRegion",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryCountry",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryCountry",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryGroup",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryGroup",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SalesTerritoryStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Sales Territory Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Sales Territory Data To Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [SalesTerritoryAlternateKey] = STS.SalesTerritoryAlternateKey,\r\n    [SalesTerritoryRegion] = STS.SalesTerritoryRegion,\r\n    [SalesTerritoryCountry] = STS.SalesTerritoryCountry,\r\n    [SalesTerritoryGroup] = STS.SalesTerritoryGroup\r\nFROM\r\n    Integration.SalesTerritoryStaging STS LEFT JOIN\r\n    dbo.DimSalesTerritory ST ON\r\n        ST.SalesTerritoryAlternateKey = STS.SalesTerritoryAlternateKey\r\nWHERE \r\n    ST.SalesTerritoryKey IS NULL\r\n\r\nUNION ALL\r\n\r\nSELECT\r\n    ST0.SalesTerritoryAlternateKey,\r\n    ST0.SalesTerritoryRegion,\r\n    ST0.SalesTerritoryCountry,\r\n    ST0.SalesTerritoryGroup\r\nFROM\r\n    (\r\n        SELECT\r\n            [SalesTerritoryAlternateKey] = 0,\r\n            [SalesTerritoryRegion] = 'NA',\r\n            [SalesTerritoryCountry] = 'NA',\r\n            [SalesTerritoryGroup] = 'NA'\r\n    ) ST0 LEFT JOIN\r\n    dbo.DimSalesTerritory ST On\r\n        ST.SalesTerritoryAlternateKey = ST0.SalesTerritoryAlternateKey\r\nWHERE\r\n    ST.SalesTerritoryKey IS NULL",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryRegion",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryRegion",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryCountry",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryCountry",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryGroup",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesTerritoryGroup",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SalesTerritoryStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DimSalesTerritory",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Geography Data to Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Sales Territory Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT DISTINCT\n\t[City] = AD.City, \n\t[StateProvinceCode] = SP.StateProvinceCode, \n\t[StateProvinceName] = SP.Name,\n\t[CountryRegionCode] = SP.CountryRegionCode,\n\t[EnglishCountryRegionName] = CR.Name,\n\t[SpanishCountryRegionName] = ICR.SpanishCountryRegionName,\n\t[FrenchCountryRegionName] = ICR.FrenchCountryRegionName,\n\t[PostalCode] = AD.PostalCode,\n\t[SalesTerritoryAlternateKey] = SP.TerritoryID\nFROM\n\tPerson.Address AD LEFT JOIN\n\tPerson.StateProvince SP ON\n\t\tSP.StateProvinceID = AD.StateProvinceID LEFT JOIN\n\tPerson.CountryRegion CR ON\n\t\tCR.CountryRegionCode = SP.CountryRegionCode LEFT JOIN\n\tIntegration.CountryRegion ICR ON\n\t\tICR.CountryRegionName = CR.Name\nORDER BY\n\tCR.Name,\n\tSP.Name,\n\tAD.City,\n\tAD.PostalCode",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.GeographyStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StateProvinceCode",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "StateProvinceCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StateProvinceName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "StateProvinceName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CountryRegionCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CountryRegionCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "PostalCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "PostalCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "GeographyStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Geography Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Geography Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [City] = GS.City,\r\n    [StateProvinceCode] = GS.StateProvinceCode,\r\n    [StateProvinceName] = GS.StateProvinceName,\r\n    [CountryRegionCode] = GS.CountryRegionCode,\r\n    [EnglishCountryRegionName] = GS.EnglishCountryRegionName,\r\n    [SpanishCountryRegionName] = GS.SpanishCountryRegionName,\r\n    [FrenchCountryRegionName] = GS.FrenchCountryRegionName,\r\n    [PostalCode] = GS.PostalCode,\r\n    [SalesTerritoryKey] = ST.SalesTerritoryKey\r\nFROM\r\n    Integration.GeographyStaging GS LEFT JOIN\r\n    dbo.DimSalesTerritory ST ON\r\n        ST.SalesTerritoryAlternateKey = GS.SalesTerritoryAlternateKey LEFT JOIN\r\n    dbo.DimGeography G ON\r\n        G.City = GS.City AND\r\n        G.PostalCode = GS.PostalCode AND\r\n        G.StateProvinceCode = GS.StateProvinceCode AND\r\n        G.CountryRegionCode = GS.CountryRegionCode \r\nWHERE \r\n    G.GeographyKey IS NULL\r\nORDER BY\r\n    GS.EnglishCountryRegionName,\r\n    GS.StateProvinceName,\r\n    GS.City,\r\n    GS.PostalCode",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StateProvinceCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "StateProvinceCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StateProvinceName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "StateProvinceName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CountryRegionCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CountryRegionCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchCountryRegionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "PostalCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "PostalCode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "GeographyStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DimGeography",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

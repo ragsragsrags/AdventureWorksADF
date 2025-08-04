@@ -1,0 +1,34 @@
+{
+	"name": "SalesTerritoryStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SalesTerritoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesTerritoryRegion",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryCountry",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryGroup",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "SalesTerritoryStaging"
+		}
+	}
+}

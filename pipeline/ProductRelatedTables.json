@@ -204,6 +204,1217 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Copy Product Sub Category Data To Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Product Category Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [ProductSubcategoryAlternateKey] = PSC.ProductSubcategoryID,\r\n    [EnglishProductSubcategoryName] = PSC.Name,\r\n    [SpanishProductSubcategoryName] = PSCT.SpanishName,\r\n    [FrenchProductSubcategoryName] = PSCT.FrenchName,\r\n    [ProductCategoryAlternateKey] = PSC.ProductCategoryID\r\nFROM\r\n    Production.ProductSubcategory PSC LEFT JOIN\r\n    Integration.ProductSubcategoryType PSCT ON\r\n        PSCT.Name = PSC.Name\r\nORDER BY\r\n    PSC.ProductSubcategoryID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.ProductSubcategoryStaging;",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductCategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductCategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ProductSubcategoryStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Product Sub Category Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Product Sub Category Data To Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [ProductSubcategoryAlternateKey] = PST.ProductSubcategoryAlternateKey,\r\n    [EnglishProductSubcategoryName] = PST.EnglishProductSubcategoryName,\r\n    [SpanishProductSubcategoryName] = PST.SpanishProductSubcategoryName,\r\n    [FrenchProductSubcategoryName] = PST.FrenchProductSubcategoryName,\r\n    [ProductCategoryKey] = PC.ProductCategoryKey\r\nFROM\r\n    Integration.ProductSubcategoryStaging PST LEFT JOIN\r\n    dbo.DimProductCategory PC ON\r\n        PC.ProductCategoryAlternateKey = PST.ProductCategoryAlternateKey LEFT JOIN\r\n    dbo.DimProductSubcategory PS ON\r\n        PS.ProductSubcategoryAlternateKey = PST.ProductSubcategoryAlternateKey\r\nWHERE\r\n    PS.ProductSubcategoryKey IS NULL",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchProductSubcategoryName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductCategoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductCategoryKey",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DimProductSubCategory",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DimProductSubCategory",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Product Data To Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Product Sub Category Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \r\n    [ProductAlternateKey] = P.ProductNumber,\r\n    [ProductSubcategoryAlternateKey] = P.ProductSubcategoryID,\r\n    [WeightUnitMeasureCode] = P.WeightUnitMeasureCode,\r\n    [SizeUnitMeasureCode] = P.SizeUnitMeasureCode,\r\n    [EnglishProductName] = P.[Name],\r\n    [SpanishProductName] = PNT.SpanishName,\r\n    [FrenchProductName] = PNT.FrenchName,\r\n    [StandardCost] = \r\n        CASE \r\n            WHEN PCH.StartDate IS NOT NULL THEN PCH.StandardCost\r\n            ELSE P.StandardCost\r\n        END,\r\n    [FinishedGoodsFlag] = P.FinishedGoodsFlag,\r\n    [Color] = ISNULL(P.Color, 'NA'),\r\n    [SafetyStockLevel] = P.SafetyStockLevel,\r\n    [ReorderPoint] = P.ReorderPoint,\r\n    [ListPrice] = \r\n        CASE\r\n            WHEN PLPH.StartDate IS NOT NULL THEN PLPH.ListPrice\r\n            ELSE P.ListPrice\r\n        END,\r\n    [Size] = P.Size,\r\n    [SizeRange] = ISNULL(SRT.SizeRange, 'NA'),\r\n    [Weight] = P.[Weight],\r\n    [DaysToManufacture] = P.DaysToManufacture,\r\n    [ProductLine] = P.ProductLine,\r\n    [DealerPrice] = NULL,\r\n    [Class] = P.Class,\r\n    [Style] = P.Style,\r\n    [ModelName] = PM.Name,\r\n    [LargePhoto] = PP.LargePhoto,\r\n    [EnglishDescription] = PD.Description,\r\n    [FrenchDescription] = PD2.Description,\r\n    [ChineseDescription] = PD3.Description,\r\n    [ArabicDescription] = PD4.Description,\r\n    [HebrewDescription] = PD5.Description,\r\n    [ThaiDescription] = PD6.Description,\r\n    [GermanDescription] = PDT.GermanDescription,\r\n    [JapaneseDescription] = PDT.JapaneseDescription,\r\n    [TurkishDescription] = PDT.TurkishDescription,\r\n    [StartDate] = PCH.StartDate,\r\n    [EndDate] = PCH.EndDate,\r\n    [Status] = CAST(\r\n        CASE \r\n            WHEN PLPH.EndDate IS NULL THEN 'Current'\r\n            ELSE NULL\r\n        END AS NVARCHAR(7)\r\n    )\r\nFROM \r\n    Production.[Product] P LEFT JOIN\r\n    Production.ProductListPriceHistory PLPH ON\r\n        PLPH.ProductID = P.ProductID LEFT JOIN\r\n    Production.ProductCostHistory PCH ON\r\n        PCH.ProductID = P.ProductID AND\r\n        PLPH.StartDate = PCH.StartDate LEFT JOIN\r\n    Production.ProductModel PM ON\r\n        PM.ProductModelID = P.ProductModelID LEFT JOIN\r\n    Production.ProductProductPhoto PPP ON\r\n        PPP.ProductID = P.ProductID LEFT JOIN\r\n    Production.ProductPhoto PP ON\r\n        PP.ProductPhotoID = PPP.ProductPhotoID LEFT JOIN\r\n    Production.ProductModelProductDescriptionCulture PMDC ON\r\n        PMDC.ProductModelID = PM.ProductModelID AND\r\n        PMDC.CultureID = 'en' LEFT JOIN\r\n    Production.ProductDescription PD ON\r\n        PD.ProductDescriptionID = PMDC.ProductDescriptionID LEFT JOIN\r\n    Production.ProductModelProductDescriptionCulture PMDC2 ON\r\n        PMDC2.ProductModelID = PM.ProductModelID AND\r\n        PMDC2.CultureID = 'fr' LEFT JOIN\r\n    Production.ProductDescription PD2 ON\r\n        PD2.ProductDescriptionID = PMDC2.ProductDescriptionID LEFT JOIN \r\n    Production.ProductModelProductDescriptionCulture PMDC3 ON\r\n        PMDC3.ProductModelID = PM.ProductModelID AND\r\n        PMDC3.CultureID = 'zh-cht' LEFT JOIN\r\n    Production.ProductDescription PD3 ON\r\n        PD3.ProductDescriptionID = PMDC3.ProductDescriptionID LEFT JOIN\r\n    Production.ProductModelProductDescriptionCulture PMDC4 ON\r\n        PMDC4.ProductModelID = PM.ProductModelID AND\r\n        PMDC4.CultureID = 'ar' LEFT JOIN\r\n    Production.ProductDescription PD4 ON\r\n        PD4.ProductDescriptionID = PMDC4.ProductDescriptionID LEFT JOIN\r\n    Production.ProductModelProductDescriptionCulture PMDC5 ON\r\n        PMDC5.ProductModelID = PM.ProductModelID AND\r\n        PMDC5.CultureID = 'he' LEFT JOIN\r\n    Production.ProductDescription PD5 ON\r\n        PD5.ProductDescriptionID = PMDC5.ProductDescriptionID LEFT JOIN\r\n    Production.ProductModelProductDescriptionCulture PMDC6 ON\r\n        PMDC6.ProductModelID = PM.ProductModelID AND\r\n        PMDC6.CultureID = 'th' LEFT JOIN\r\n    Production.ProductDescription PD6 ON\r\n        PD6.ProductDescriptionID = PMDC6.ProductDescriptionID LEFT JOIN\r\n    Integration.ProductDescriptionType PDT ON\r\n        PDT.Description = PD.Description LEFT JOIN\r\n    Integration.ProductNameType PNT ON\r\n        PNT.Name = P.Name LEFT JOIN\r\n    Integration.SizeRangeType SRT ON \r\n        SRT.Size = P.Size\r\nORDER BY\r\n    P.ProductID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.ProductStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductSubcategoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "StandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "FinishedGoodsFlag",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "FinishedGoodsFlag",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							},
+							{
+								"source": {
+									"name": "Color",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Color",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SafetyStockLevel",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "SafetyStockLevel",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "ReorderPoint",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "ReorderPoint",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "ListPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ListPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Size",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Size",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeRange",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SizeRange",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Weight",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 2,
+									"precision": 8
+								},
+								"sink": {
+									"name": "Weight",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "DaysToManufacture",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DaysToManufacture",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductLine",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "ProductLine",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DealerPrice",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DealerPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Class",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "Class",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Style",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "Style",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ModelName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ModelName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "LargePhoto",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								},
+								"sink": {
+									"name": "LargePhoto",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ChineseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ChineseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ArabicDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ArabicDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "HebrewDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "HebrewDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ThaiDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ThaiDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "GermanDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "GermanDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "JapaneseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "JapaneseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "TurkishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "TurkishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "Status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ProductStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Product Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Product Data To Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [ProductAlternateKey] = PS.ProductAlternateKey,\r\n    [ProductSubcategoryKey] = PSC.ProductSubcategoryKey,\r\n    [WeightUnitMeasureCode] = PS.WeightUnitMeasureCode,\r\n    [SizeUnitMeasureCode] = PS.SizeUnitMeasureCode,\r\n    [EnglishProductName] = PS.EnglishProductName,\r\n    [SpanishProductName] = PS.SpanishProductName,\r\n    [FrenchProductName] = PS.FrenchProductName,\r\n    [StandardCost] = PS.StandardCost,\r\n    [FinishedGoodsFlag] = PS.FinishedGoodsFlag,\r\n    [Color] = PS.Color,\r\n    [SafetyStockLevel] = PS.SafetyStockLevel,\r\n    [ReorderPoint] = PS.ReorderPoint,\r\n    [ListPrice] = PS.ListPrice,\r\n    [Size] = PS.Size,\r\n    [SizeRange] = PS.SizeRange,\r\n    [Weight] = PS.Weight,\r\n    [DaysToManufacture] = PS.DaysToManufacture,\r\n    [ProductLine] = PS.ProductLine,\r\n    [DealerPrice] = PS.DealerPrice,\r\n    [Class] = PS.Class,\r\n    [Style] = PS.Style,\r\n    [ModelName] = PS.ModelName,\r\n    [LargePhoto] = PS.LargePhoto,\r\n    [EnglishDescription] = PS.EnglishDescription,\r\n    [FrenchDescription] = PS.FrenchDescription,\r\n    [ChineseDescription] = PS.ChineseDescription,\r\n    [ArabicDescription] = PS.ArabicDescription,\r\n    [HebrewDescription] = PS.HebrewDescription,\r\n    [ThaiDescription] = PS.ThaiDescription,\r\n    [GermanDescription] = PS.GermanDescription,\r\n    [JapaneseDescription] = PS.JapaneseDescription,\r\n    [TurkishDescription] = PS.TurkishDescription,\r\n    [StartDate] = PS.StartDate,\r\n    [EndDate] = PS.EndDate,\r\n    [Status] = PS.Status\r\nFROM\r\n    Integration.ProductStaging PS LEFT JOIN\r\n    dbo.DimProductSubcategory PSC ON\r\n        PSC.ProductSubcategoryAlternateKey = PS.ProductSubcategoryAlternateKey LEFT JOIN\r\n    dbo.DimProduct P ON\r\n        P.ProductAlternateKey = PS.ProductAlternateKey\r\nWHERE \r\n    P.ProductKey IS NULL",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductSubcategoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductSubcategoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchProductName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "StandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "FinishedGoodsFlag",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "FinishedGoodsFlag",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							},
+							{
+								"source": {
+									"name": "Color",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Color",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SafetyStockLevel",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "SafetyStockLevel",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "ReorderPoint",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "ReorderPoint",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "ListPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ListPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Size",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Size",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeRange",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SizeRange",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Weight",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "Weight",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "DaysToManufacture",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DaysToManufacture",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductLine",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "ProductLine",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DealerPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "DealerPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Class",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "Class",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Style",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "Style",
+									"type": "String",
+									"physicalType": "nchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ModelName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ModelName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "LargePhoto",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								},
+								"sink": {
+									"name": "LargePhoto",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ChineseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ChineseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ArabicDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ArabicDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "HebrewDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "HebrewDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ThaiDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ThaiDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "GermanDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "GermanDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "JapaneseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "JapaneseDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "TurkishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "TurkishDescription",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "Status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ProductStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DimProduct",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": [],

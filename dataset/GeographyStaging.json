@@ -1,0 +1,54 @@
+{
+	"name": "GeographyStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "City",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StateProvinceCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StateProvinceName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CountryRegionCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EnglishCountryRegionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishCountryRegionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchCountryRegionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PostalCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "GeographyStaging"
+		}
+	}
+}

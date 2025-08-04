@@ -1,0 +1,39 @@
+{
+	"name": "DimProductSubCategory",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ProductSubcategoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EnglishProductSubcategoryName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishProductSubcategoryName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchProductSubcategoryName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ProductCategoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimProductSubcategory"
+		}
+	}
+}

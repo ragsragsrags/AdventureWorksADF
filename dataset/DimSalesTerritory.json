@@ -1,0 +1,43 @@
+{
+	"name": "DimSalesTerritory",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SalesTerritoryKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesTerritoryAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesTerritoryRegion",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryCountry",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryGroup",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryImage",
+				"type": "varbinary"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimSalesTerritory"
+		}
+	}
+}
