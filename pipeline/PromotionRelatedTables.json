@@ -1,9 +1,9 @@
 {
-	"name": "PromotionTable",
+	"name": "PromotionRelatedTables",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Copy Promotion Data to Staging",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -15,8 +15,461 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
-				}
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\n\t[PromotionAlternateKey] = SO.SpecialOfferID,\n\t[EnglishPromotionName] = SO.[Description],\n\t[SpanishPromotionName] = PNT.[SpanishName],\n\t[FrenchPromotionName] = PNT.[FrenchName],\n\t[DiscountPct] = SO.DiscountPct,\n\t[EnglishPromotionType] = SO.[Type],\n\t[SpanishPromotionType] = PT.[SpanishName],\n\t[FrenchPromotionType] = PT.[FrenchName],\n\t[EnglishPromotionCategory] = SO.Category,\n\t[SpanishPromotionCategory] = PCT.SpanishName,\n\t[FrenchPromotionCategory] = PCT.FrenchName,\n\t[StartDate] = SO.StartDate,\n\t[EndDate] = SO.EndDate,\n\t[MinQty] = SO.MinQty,\n\t[MaxQty] = SO.MaxQty\nFROM\n\tSales.SpecialOffer SO LEFT JOIN\n\tIntegration.PromotionNameType PNT ON\n\t\tPNT.Name = SO.Description LEFT JOIN\n\tIntegration.PromotionType PT ON\n\t\tPT.Name = SO.Type LEFT JOIN\n\tIntegration.PromotionCategoryType PCT ON\n\t\tPCT.Name = SO.Category\nORDER BY\n\tSO.SpecialOfferID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE dbo.DimPromotion",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountPct",
+									"type": "Decimal",
+									"physicalType": "smallmoney",
+									"scale": 4,
+									"precision": 10
+								},
+								"sink": {
+									"name": "DiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "MinQty",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "MinQty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "MaxQty",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "MaxQty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "PromotionStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Promotion Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Promotion Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [PromotionAlternateKey] = PS.PromotionAlternateKey,\r\n    [EnglishPromotionName] = PS.EnglishPromotionName,\r\n    [SpanishPromotionName] = PS.SpanishPromotionName,\r\n    [FrenchPromotionName] = PS.FrenchPromotionName,\r\n    [DiscountPct] = PS.DiscountPct,\r\n    [EnglishPromotionType] = PS.EnglishPromotionType,\r\n    [SpanishPromotionType] = PS.SpanishPromotionType,\r\n    [FrenchPromotionType] = PS.FrenchPromotionType,\r\n    [EnglishPromotionCategory] = PS.EnglishPromotionCategory,\r\n    [SpanishPromotionCategory] = PS.SpanishPromotionCategory,\r\n    [FrenchPromotionCategory] = PS.FrenchPromotionCategory,\r\n    [StartDate] = PS.StartDate,\r\n    [EndDate] = PS.EndDate,\r\n    [MinQty] = PS.MinQty,\r\n    [MaxQty] = PS.MaxQty\r\nFROM\r\n    Integration.PromotionStaging PS LEFT JOIN\r\n    dbo.DimPromotion P ON\r\n        P.PromotionAlternateKey = PS.PromotionAlternateKey\r\nWHERE \r\n    P.PromotionKey IS NULL\r\nORDER BY\r\n    PS.PromotionAlternateKey",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "DiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EnglishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SpanishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SpanishPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FrenchPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "FrenchPromotionCategory",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "StartDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "EndDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "MinQty",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "MinQty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "MaxQty",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "MaxQty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "PromotionStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DiimPromotion",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []

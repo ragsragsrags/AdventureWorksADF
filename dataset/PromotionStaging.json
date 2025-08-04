@@ -1,0 +1,85 @@
+{
+	"name": "PromotionStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "PromotionAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EnglishPromotionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishPromotionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchPromotionName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DiscountPct",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EnglishPromotionType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishPromotionType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchPromotionType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EnglishPromotionCategory",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SpanishPromotionCategory",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FrenchPromotionCategory",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StartDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "EndDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "MinQty",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "MaxQty",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "PromotionStaging"
+		}
+	}
+}
