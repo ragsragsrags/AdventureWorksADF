@@ -1,5 +1,5 @@
 {
-	"name": "ProductCategory",
+	"name": "AdventureWorksSource",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AdventureWorks2022",
