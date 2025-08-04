@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ruelragpa-df"
+		},
+		"AdventureWorks2022_properties_typeProperties_server": {
+			"value": "uelness.database.windows.net"
+		},
+		"AdventureWorks2022_properties_typeProperties_database": {
+			"value": "AdventureWorks2022"
+		},
+		"AdventureWorksDW2022_properties_typeProperties_server": {
+			"value": "uelness.database.windows.net"
+		},
+		"AdventureWorksDW2022_properties_typeProperties_database": {
+			"value": "AdventureWorksDW2022"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
