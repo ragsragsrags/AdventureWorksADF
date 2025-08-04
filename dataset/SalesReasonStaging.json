@@ -1,0 +1,30 @@
+{
+	"name": "SalesReasonStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SalesReasonAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesReasonName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesReasonReasonType",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "SalesReasonStaging"
+		}
+	}
+}

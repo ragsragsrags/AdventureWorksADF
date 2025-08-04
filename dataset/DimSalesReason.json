@@ -1,0 +1,35 @@
+{
+	"name": "DimSalesReason",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SalesReasonKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesReasonAlternateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesReasonName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesReasonReasonType",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimSalesReason"
+		}
+	}
+}
