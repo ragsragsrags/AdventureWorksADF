@@ -1,0 +1,16 @@
+{
+	"name": "FactInternetSalesStaging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Integration",
+			"table": "FactInternetSalesStaging"
+		}
+	}
+}

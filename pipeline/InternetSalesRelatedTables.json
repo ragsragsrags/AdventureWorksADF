@@ -1008,6 +1008,990 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Copy Fact Internet Sales Data to Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Customer Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \n\t[ProductAlternateKey] = P.ProductNumber,\n\t[OrderDateKey] = (\n\t\t(YEAR(SOH.OrderDate) * 10000) +\n\t\t(MONTH(SOH.OrderDate) * 100) + \n\t\tDAY(SOH.OrderDate)\n\t),\n\t[DueDateKey] = (\n\t\t(YEAR(SOH.DueDate) * 10000) +\n\t\t(MONTH(SOH.DueDate) * 100) + \n\t\tDAY(SOH.DueDate)\n\t),\n\t[ShipDateKey] = (\n\t\t(YEAR(SOH.ShipDate) * 10000) +\n\t\t(MONTH(SOH.ShipDate) * 100) + \n\t\tDAY(SOH.ShipDate)\n\t),\n\t[CustomerAlternateKey] = CAST(C.AccountNumber AS NVARCHAR(50)),\n\t[PromotionAlternateKey] = SOD.SpecialOfferID,\n\t[CurrencyAlternateKey] = ISNULL(CR.ToCurrencyCode, 'USD'),\n\t[SalesTerritoryAlternateKey] = SOH.TerritoryID,\n\t[SalesOrderNumber] = CAST(SOH.SalesOrderNumber AS NVARCHAR(20)),\n\t[SalesOrderLineNumber] = (\n\t\tROW_NUMBER() OVER(\n\t\t\tPARTITION BY \n\t\t\t\tSOD.SalesOrderID \n\t\t\tORDER BY \n\t\t\t\tSOD.SalesOrderDetailID ASC\n\t\t)\n\t),\n\t[RevisionNumber] = SOH.RevisionNumber,\n\t[OrderQuantity] = SOD.OrderQty,\n\t[UnitPrice] = SOD.UnitPrice,\n\t[ExtendedAmount] = SOD.UnitPrice * SOD.OrderQty,\n\t[UnitPriceDiscountPct] = SOD.UnitPriceDiscount,\n\t[DiscountAmount] = (\n\t\tSOD.UnitPrice * \n\t\tSOD.OrderQty *\n\t\tSOD.UnitPriceDiscount\n\t),\n\t[ProductStandardCost] = COALESCE(PCH.StandardCost, P.StandardCost),\n\t[TotalProductCost] = (\n\t\tCOALESCE(PCH.StandardCost, P.StandardCost) *\n\t\tSOD.OrderQty\n\t),\n\t[SalesAmount] = SOD.LineTotal,\n\t[TaxAmt] = ROUND(\n\t\t(\n\t\t\t(SOD.LineTotal / SOH.SubTotal) * \n\t\t\tSOH.TaxAmt\n\t\t),\n\t\t4\n\t),\n\t[Freight] = ROUND(\n\t\t(\n\t\t\t(SOD.LineTotal / SOH.SubTotal) * \n\t\t\tSOH.Freight\n\t\t),\n\t\t4\n\t),\n\t[CarrierrTrackingNumber] = SOD.CarrierTrackingNumber,\n\t[CustomerPONumber] = SOH.PurchaseOrderNumber,\n\t[OrderDate] = SOH.OrderDate,\n\t[DueDate] = SOH.DueDate,\n\t[ShipDate] = SOH.ShipDate\nFROM \n\tSales.Customer C LEFT JOIN\n\tSales.SalesOrderHeader SOH ON \n\t\tSOH.CustomerID = C.CustomerID LEFT JOIN\n\tSales.SalesOrderDetail SOD ON\n\t\tSOD.SalesOrderID = SOH.SalesOrderID LEFT JOIN\n\tProduction.[Product] P ON\n\t\tP.ProductID = SOD.ProductID LEFT JOIN\n\tProduction.ProductCostHistory PCH ON \n\t\tPCH.ProductID = SOD.ProductID \n\t\tAND\n\t\tSOH.OrderDate >= PCH.StartDate AND \n\t\t(\n\t\t\tSOH.OrderDate <= PCH.EndDate OR \n\t\t\tPCH.EndDate IS NULL\n\t\t) \n\t\tLEFT JOIN\n\tSales.CurrencyRate CR ON\n\t\tCR.CurrencyRateID = SOH.CurrencyRateID \nWHERE\n\tC.PersonID IS NOT NULL AND\n\tC.StoreID IS NULL \nORDER BY\n\tSOH.SalesOrderNumber,\n\t(\n\t\tROW_NUMBER() OVER(\n\t\t\tPARTITION BY \n\t\t\t\tSOD.SalesOrderID \n\t\t\tORDER BY \n\t\t\t\tSOD.SalesOrderDetailID ASC\n\t\t)\n\t)",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.FactInternetSalesStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "ProductAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "OrderDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DueDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ShipDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CustomerAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PromotionAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "CurrencyAlternateKey",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "RevisionNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								},
+								"sink": {
+									"name": "RevisionNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderQuantity",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "OrderQuantity",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "ExtendedAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ExtendedAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "DiscountAmount",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductStandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ProductStandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "TotalProductCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "TotalProductCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "SalesAmount",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 38
+								},
+								"sink": {
+									"name": "SalesAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "TaxAmt",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 38
+								},
+								"sink": {
+									"name": "TaxAmt",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Freight",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 38
+								},
+								"sink": {
+									"name": "Freight",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "CarrierrTrackingNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CarrierTrackingNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerPONumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CustomerPONumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "OrderDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "DueDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "ShipDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactInternetSalesStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Fact Internet Sales Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Fact Internet Sales Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT DISTINCT\n\t[ProductKey] = P.ProductKey,\n\t[OrderDateKey] = FISS.OrderDateKey,\n\t[DueDateKey] = FISS.DueDateKey,\n\t[ShipDateKey] = FISS.ShipDateKey,\n\t[CustomerKey] = C.CustomerKey,\n\t[PromotionKey] = PR.PromotionKey,\n\t[CurrencyKey] = CR.CurrencyKey,\n\t[SalesTerritoryKey] = ST.SalesTerritoryKey,\n\t[SalesOrderNumber] = FISS.SalesOrderNumber,\n\t[SalesOrderLineNumber] = FISS.SalesOrderLineNumber,\n\t[RevisionNumber] = FISS.RevisionNumber,\n\t[OrderQuantity] = FISS.OrderQuantity,\n\t[UnitPrice] = FISS.UnitPrice,\n\t[ExtendedAmount] = FISS.ExtendedAmount,\n\t[UnitPriceDiscountPct] = FISS.UnitPriceDiscountPct,\n\t[DiscountAmount] = FISS.DiscountAmount,\n\t[ProductStandardCost] = FISS.ProductStandardCost,\n\t[TotalProductCost] = FISS.TotalProductCost,\n\t[SalesAmount] = FISS.SalesAmount,\n\t[TaxAmt] = FISS.TaxAmt,\n\t[Freight] = FISS.Freight,\n\t[CarrierTrackingNumber] = FISS.CarrierTrackingNumber,\n\t[CustomerPONumber] = FISS.CustomerPONumber,\n\t[OrderDate] = FISS.OrderDate,\n\t[DueDate] = FISS.DueDate,\n\t[ShipDate] = FISS.ShipDate\nFROM\n\tIntegration.FactInternetSalesStaging FISS \n\tCROSS APPLY\n\t(\n\t\tSELECT TOP 1\n\t\t\tP.ProductKey\n\t\tFROM\t\n\t\t\tdbo.DimProduct P \n\t\tWHERE\n\t\t\tP.ProductAlternateKey = FISS.ProductAlternateKey \n\t\tORDER BY\n\t\t\tP.Status DESC,\n\t\t\tP.StartDate DESC\n\t) P LEFT JOIN\n\tdbo.DimCustomer C ON\n\t\tC.CustomerAlternateKey = FISS.CustomerAlternateKey LEFT JOIN\n\tdbo.DimPromotion PR ON\n\t\tPR.PromotionAlternateKey = FISS.PromotionAlternateKey LEFT JOIN\n\tdbo.DimCurrency CR ON\n\t\tCR.CurrencyAlternateKey = FISS.CurrencyAlternateKey LEFT JOIN\n\tdbo.DimSalesTerritory ST ON\n\t\tST.SalesTerritoryAlternateKey = FISS.SalesTerritoryAlternateKey LEFT JOIN\n\tdbo.FactInternetSales FIS ON\n\t\tFIS.SalesOrderNumber = FISS.SalesOrderNumber AND\n\t\tFIS.SalesOrderLineNumber = FISS.SalesOrderLineNumber\nWHERE \n\tFIS.SalesOrderNumber IS NULL\nORDER BY\n\tFISS.SalesOrderNumber,\n\tFISS.SalesOrderLineNumber",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ProductKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "OrderDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "DueDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "ShipDateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "CustomerKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "PromotionKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PromotionKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "CurrencyKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "CurrencyKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesTerritoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesTerritoryKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "RevisionNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								},
+								"sink": {
+									"name": "RevisionNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderQuantity",
+									"type": "Int16",
+									"physicalType": "smallint"
+								},
+								"sink": {
+									"name": "OrderQuantity",
+									"type": "Int16",
+									"physicalType": "smallint"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "ExtendedAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ExtendedAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountAmount",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "DiscountAmount",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductStandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "ProductStandardCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "TotalProductCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "TotalProductCost",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "SalesAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "SalesAmount",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "TaxAmt",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "TaxAmt",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Freight",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								},
+								"sink": {
+									"name": "Freight",
+									"type": "Decimal",
+									"physicalType": "money",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "CarrierTrackingNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CarrierTrackingNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerPONumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CustomerPONumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "OrderDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "DueDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "ShipDate",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "FactInternetSalesStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactInternetSales",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Fact Internet Sales Reason Data to Staging",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Fact Internet Sales Staging Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\r\n    [SalesOrderNumber] = CAST(SOH.SalesOrderNumber AS NVARCHAR(20)),\r\n    [SalesOrderLineNumber] = SOH.SalesOrderLineNumber,\r\n    [SalesReasonAlternateKey] = SOHSR.SalesReasonID\r\nFROM\r\n    Sales.SalesOrderHeaderSalesReason SOHSR \r\n    CROSS APPLY\r\n    (\r\n        SELECT\r\n            [SalesOrderNumber] = SOH.SalesOrderNumber,\r\n            [SalesOrderLineNumber] = (\r\n                ROW_NUMBER() OVER(\r\n                    PARTITION BY \r\n                        SOD.SalesOrderID \r\n                    ORDER BY \r\n                        SOD.SalesOrderDetailID ASC\r\n                )\r\n            )\r\n        FROM\r\n            Sales.SalesOrderHeader SOH JOIN\r\n            Sales.SalesOrderDetail SOD ON\r\n                SOD.SalesOrderID = SOH.SalesOrderID \r\n        WHERE\r\n            SOH.SalesOrderID = SOHSR.SalesOrderID\r\n    ) SOH\r\nORDER BY\r\n    SOH.SalesOrderNumber,\r\n    SOH.salesOrderLineNumber,\r\n    SOHSR.SalesReasonID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DELETE Integration.FactInternetSalesReasonStaging",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesReasonAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesReasonAlternateKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AdventureWorksSource",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactInternetSalesReasonStaging",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Fact Internet Sales Reason Staging Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Fact Internet Sales Reason Data to Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\n\t[SalesOrderNumber] = FISRS.SalesOrderNumber,\n\t[SalesOrderLineNumber] = FISRS.SalesOrderLineNumber,\n\t[SalesReasonKey] = SR.SalesReasonKey\t\nFROM\n\tIntegration.FactInternetSalesReasonStaging FISRS LEFT JOIN\n\tdbo.DimSalesReason SR ON\n\t\tSR.SalesReasonAlternateKey = FISRS.SalesReasonAlternateKey LEFT JOIN\n\tdbo.FactInternetSalesReason FISR ON\n\t\tFISR.SalesOrderNumber = FISRS.SalesOrderNumber AND\n\t\tFISR.SalesOrderLineNumber = FISRS.SalesOrderLineNumber\nWHERE \n\tFISR.SalesOrderNumber IS NULL\nORDER BY\n\tFISRS.SalesOrderNumber,\n\tFISRS.salesOrderLineNumber,\n\tFISRS.SalesReasonAlternateKey",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte",
+									"physicalType": "tinyint"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesReasonKey",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "SalesReasonKey",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "FactInternetSalesReasonStaging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FactInternetSalesReason",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []
