@@ -1,0 +1,111 @@
+{
+	"name": "DimReseller",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ResellerKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "GeographyKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ResellerAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Phone",
+				"type": "nvarchar"
+			},
+			{
+				"name": "BusinessType",
+				"type": "varchar"
+			},
+			{
+				"name": "ResellerName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "NumberEmployees",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "OrderFrequency",
+				"type": "char"
+			},
+			{
+				"name": "OrderMonth",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "FirstOrderYear",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "LastOrderYear",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ProductLine",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AddressLine1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AddressLine2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AnnualSales",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "BankName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MinPaymentType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "MinPaymentAmount",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "AnnualRevenue",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "YearOpened",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimReseller"
+		}
+	}
+}
