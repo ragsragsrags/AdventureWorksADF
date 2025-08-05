@@ -1,4 +1,4 @@
-Initialized by Azure Data Factory!This is an ETL workflow on OLTP Adventureworks database to a warehouse database for Azure Data Factory.  This is only the sales data (finance data is not included) and one-time only. This is to assume you have azure subscription.  Here are some relevant documents:
+This is an ETL workflow on OLTP Adventureworks database to a warehouse database for Azure Data Factory.  This is only the sales data (finance data is not included) and one-time only. This is to assume you have azure subscription.  Here are some relevant documents:
 
 Create server/database: https://learn.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal
 Connect to server: https://learn.microsoft.com/en-us/azure/azure-sql/database/connect-query-ssms?view=azuresql
