@@ -1,15 +1,15 @@
 {
 	"name": "AdventureWorks2022",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
 			"server": "uelness.database.windows.net",
-			"database": "AdventureWorks2022",
+			"database": "AdventureWorks2022_v2",
 			"encrypt": "mandatory",
 			"trustServerCertificate": true,
 			"authenticationType": "SystemAssignedManagedIdentity"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
