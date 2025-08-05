@@ -1,0 +1,149 @@
+{
+	"name": "DimEmployee",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdventureWorksDW2022",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "EmployeeKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ParentEmployeeKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EmployeeNationalIDAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ParentEmployeeNationalIDAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesTerritoryKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "FirstName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LastName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MiddleName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "NameStyle",
+				"type": "bit"
+			},
+			{
+				"name": "Title",
+				"type": "nvarchar"
+			},
+			{
+				"name": "HireDate",
+				"type": "date"
+			},
+			{
+				"name": "BirthDate",
+				"type": "date"
+			},
+			{
+				"name": "LoginID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Phone",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MaritalStatus",
+				"type": "nchar"
+			},
+			{
+				"name": "EmergencyContactName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EmergencyContactPhone",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalariedFlag",
+				"type": "bit"
+			},
+			{
+				"name": "Gender",
+				"type": "nchar"
+			},
+			{
+				"name": "PayFrequency",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "BaseRate",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "VacationHours",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "SickLeaveHours",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "CurrentFlag",
+				"type": "bit"
+			},
+			{
+				"name": "SalesPersonFlag",
+				"type": "bit"
+			},
+			{
+				"name": "DepartmentName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StartDate",
+				"type": "date"
+			},
+			{
+				"name": "EndDate",
+				"type": "date"
+			},
+			{
+				"name": "Status",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EmployeePhoto",
+				"type": "varbinary"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DimEmployee"
+		}
+	}
+}
