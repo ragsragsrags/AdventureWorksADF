@@ -16,6 +16,8 @@ Then, I've deployed it to the Azure Data Factory using this step: https://learn.
 
 For the datawarehouse database, run this script to the local server and deploy to azure using the steps above: AdventureWorksDW2022_Database.sql 
 
+Also, you need to properly connect to the azure sql server.  I'm using this document: https://learn.microsoft.com/en-us/azure/data-factory/connector-azure-sql-database?tabs=data-factory
+
 Here are the changes:
   - For the OLTP AdventureWorks2022 database
     * Added the following new integration tables.  These are mostly extra tables used for types such as country, day of week, education and etc:
