@@ -3,7 +3,7 @@
 	"contentVersion": "1.0.0.0",
 	"parameters": {
 		"factoryName": {
-			"value": "ruelragpa-df"
+			"value": "RuelRagpa-df"
 		},
 		"AdventureWorks2022_properties_typeProperties_server": {
 			"value": "uelness.database.windows.net"
