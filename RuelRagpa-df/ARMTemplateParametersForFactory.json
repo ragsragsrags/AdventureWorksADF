@@ -9,13 +9,13 @@
 			"value": "uelness.database.windows.net"
 		},
 		"AdventureWorks2022_properties_typeProperties_database": {
-			"value": "AdventureWorks2022"
+			"value": "AdventureWorks2022_v2"
 		},
 		"AdventureWorksDW2022_properties_typeProperties_server": {
 			"value": "uelness.database.windows.net"
 		},
 		"AdventureWorksDW2022_properties_typeProperties_database": {
-			"value": "AdventureWorksDW2022"
+			"value": "AdventureWorksDW2022_v2"
 		}
 	}
 }

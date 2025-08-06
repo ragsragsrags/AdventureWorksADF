@@ -13,7 +13,7 @@
 		},
 		"AdventureWorks2022_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "AdventureWorks2022"
+			"defaultValue": "AdventureWorks2022_v2"
 		},
 		"AdventureWorksDW2022_properties_typeProperties_server": {
 			"type": "string",
@@ -21,7 +21,7 @@
 		},
 		"AdventureWorksDW2022_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "AdventureWorksDW2022"
+			"defaultValue": "AdventureWorksDW2022_v2"
 		},
 		"containerUri": {
 			"type": "string",

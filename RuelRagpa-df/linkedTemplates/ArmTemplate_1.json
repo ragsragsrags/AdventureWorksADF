@@ -13,6 +13,52 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/FactCurrencyRateStaging')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AdventureWorksDW2022",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CurrencyKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DateKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AverageRate",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "EndOfDayRate",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "Integration",
+					"table": "FactCurrencyRateStaging"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/FactInternetSales')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -981,76 +1027,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SalesReasonStaging')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AdventureWorksDW2022",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "SalesReasonAlternateKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "SalesReasonName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SalesReasonReasonType",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "Integration",
-					"table": "SalesReasonStaging"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SalesTerritoryStaging')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AdventureWorksDW2022",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "SalesTerritoryAlternateKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "SalesTerritoryRegion",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SalesTerritoryCountry",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SalesTerritoryGroup",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "Integration",
-					"table": "SalesTerritoryStaging"
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ResellerStaging')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1171,7 +1147,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DimReseller')]",
+			"name": "[concat(parameters('factoryName'), '/SalesReasonStaging')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1183,103 +1159,59 @@
 				"type": "AzureSqlTable",
 				"schema": [
 					{
-						"name": "ResellerKey",
+						"name": "SalesReasonAlternateKey",
 						"type": "int",
 						"precision": 10
 					},
 					{
-						"name": "GeographyKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ResellerAlternateKey",
+						"name": "SalesReasonName",
 						"type": "nvarchar"
 					},
 					{
-						"name": "Phone",
+						"name": "SalesReasonReasonType",
 						"type": "nvarchar"
-					},
-					{
-						"name": "BusinessType",
-						"type": "varchar"
-					},
-					{
-						"name": "ResellerName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NumberEmployees",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OrderFrequency",
-						"type": "char"
-					},
-					{
-						"name": "OrderMonth",
-						"type": "tinyint",
-						"precision": 3
-					},
-					{
-						"name": "FirstOrderYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LastOrderYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ProductLine",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AddressLine1",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AddressLine2",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AnnualSales",
-						"type": "money",
-						"precision": 19,
-						"scale": 4
-					},
-					{
-						"name": "BankName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "MinPaymentType",
-						"type": "tinyint",
-						"precision": 3
-					},
-					{
-						"name": "MinPaymentAmount",
-						"type": "money",
-						"precision": 19,
-						"scale": 4
-					},
-					{
-						"name": "AnnualRevenue",
-						"type": "money",
-						"precision": 19,
-						"scale": 4
-					},
-					{
-						"name": "YearOpened",
-						"type": "int",
-						"precision": 10
 					}
 				],
 				"typeProperties": {
-					"schema": "dbo",
-					"table": "DimReseller"
+					"schema": "Integration",
+					"table": "SalesReasonStaging"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SalesTerritoryStaging')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AdventureWorksDW2022",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SalesTerritoryAlternateKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SalesTerritoryRegion",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesTerritoryCountry",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesTerritoryGroup",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "Integration",
+					"table": "SalesTerritoryStaging"
 				}
 			},
 			"dependsOn": []
@@ -1695,9 +1627,14 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"folder": {
+					"name": "SubPipelines"
+				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/FactCurrencyRateStaging')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/InternetSalesRelatedTables')]",
@@ -1910,7 +1847,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "\r\nSELECT\r\n\t[CustomerAlternateKey] = CAST(C.AccountNumber AS NVARCHAR(15)),\r\n\t[GeographyCity] = A.City,\r\n\t[GeographyPostalCode] = A.PostalCode,\r\n\t[GeographyStateProvinceCode] = CAST(SP.StateProvinceCode AS NVARCHAR(3)),\r\n\t[GeographyCountryRegionCode] = SP.CountryRegionCode,\r\n\t[Title] = P.Title,\r\n\t[FirstName] = P.FirstName,\r\n\t[MiddleName] = P.MiddleName,\r\n\t[LastName] = P.LastName,\r\n\t[NameStyle] = P.NameStyle,\r\n\t[BirthDate] = PD.BirthDate,\r\n\t[MaritalStatus] = PD.MaritalStatus,\r\n\t[Suffix] = P.Suffix,\r\n\t[Gender] = PD.Gender,\r\n\t[EmailAddress] = E.EmailAddress,\r\n\t[YearlyIncome] = \r\n\t\tCASE\r\n\t\t\tWHEN CHARINDEX('-', PD.YearlyIncome, 0) > 0 THEN SUBSTRING(PD.YearlyIncome, CHARINDEX('-', PD.YearlyIncome, 0) + 1, LEN(PD.YearlyIncome) - CHARINDEX('-', PD.YearlyIncome, 0))\r\n\t\t\tWHEN CHARINDEX('greater than', PD.YearlyIncome, 0) > 0 THEN REPLACE(PD.YearlyIncome, 'greater than', '')\r\n\t\t\tELSE PD.YearlyIncome\r\n\t\tEND,\r\n\t[TotalChildren] = PD.TotalChildren,\r\n\t[NumberChildrenAtHome] = PD.NumberChildrenAtHome,\r\n\t[EnglishEducation] = PD.Education,\r\n\t[SpanishEducation] = CAST(ET.SpanishName AS NVARCHAR(40)),\r\n\t[FrenchEducation] = CAST(ET.FrenchName AS NVARCHAR(40)),\r\n\t[EnglishOccupation] = PD.Occupation,\r\n\t[SpanishOccupation] = OT.SpanishName,\r\n\t[FrenchOccupation] = OT.FrenchName,\r\n\t[HouseOwnerFlag] = PD.HomeOwnerFlag,\r\n\t[NumberCarsOwned] = PD.NumberCarsOwned,\r\n\t[AddressLine1] = A.AddressLine1,\r\n\t[AddressLine2] = A.AddressLine2,\r\n\t[Phone] = CASt(PP.PhoneNumber AS NVARCHAR(20)),\r\n\t[DateFirstPurchase] = PD.DateFirstPurchase,\r\n\t[CommuteDistance] = PD.CommuteDistance\r\nFROM \r\n\tSales.Customer C LEFT JOIN\r\n\tPerson.Person P ON\r\n\t\tP.BusinessEntityID = C.PersonID LEFT JOIN\r\n\tPerson.PersonDemographics PD ON\r\n\t\tPD.BusinessEntityID = P.BusinessEntityID LEFT JOIN\r\n\tPerson.EmailAddress E ON\r\n\t\tE.BusinessEntityID = P.BusinessEntityID LEFT JOIN\r\n\tPerson.BusinessEntityAddress BEA ON\r\n\t\tBEA.BusinessEntityID = P.BusinessEntityID AND\r\n\t\tBEA.AddressTypeID = 2 LEFT JOIN\r\n\tPerson.Address A ON\r\n\t\tA.AddressID = BEA.AddressID \r\n\tCROSS APPLY\r\n\t(\r\n\t\tSELECT TOP 1\r\n\t\t\tPP.PhoneNumber\r\n\t\tFROM\r\n\t\t\tPerson.PersonPhone PP \r\n\t\tWHERE\r\n\t\t\tPP.BusinessEntityID = P.BusinessEntityID \r\n\t\tORDER BY\r\n\t\t\tPhoneNumberTypeID\r\n\t) PP LEFT JOIN\r\n\tPerson.StateProvince SP ON\r\n\t\tSP.StateProvinceID = A.StateProvinceID LEFT JOIN\r\n\tIntegration.EducationType ET ON \r\n\t\tET.Name = PD.Education LEFT JOIN\r\n\tIntegration.OccupationType OT ON \r\n\t\tOT.Name = PD.Occupation\r\nWHERE\r\n\tC.PersonID IS NOT NULL AND \r\n\tC.StoreID IS NULL\r\nORDER BY\r\n\tC.AccountNumber",
+								"sqlReaderQuery": "\r\nSELECT\r\n\t[CustomerAlternateKey] = CAST(C.AccountNumber AS NVARCHAR(15)),\r\n\t[GeographyCity] = A.City,\r\n\t[GeographyPostalCode] = A.PostalCode,\r\n\t[GeographyStateProvinceCode] = CAST(SP.StateProvinceCode AS NVARCHAR(3)),\r\n\t[GeographyCountryRegionCode] = SP.CountryRegionCode,\r\n\t[Title] = P.Title,\r\n\t[FirstName] = P.FirstName,\r\n\t[MiddleName] = P.MiddleName,\r\n\t[LastName] = P.LastName,\r\n\t[NameStyle] = P.NameStyle,\r\n\t[BirthDate] = PD.BirthDate,\r\n\t[MaritalStatus] = PD.MaritalStatus,\r\n\t[Suffix] = P.Suffix,\r\n\t[Gender] = PD.Gender,\r\n\t[EmailAddress] = E.EmailAddress,\r\n\t[YearlyIncome] = \r\n\t\tCASE\r\n\t\t\tWHEN CHARINDEX('-', PD.YearlyIncome, 0) > 0 THEN SUBSTRING(PD.YearlyIncome, CHARINDEX('-', PD.YearlyIncome, 0) + 1, LEN(PD.YearlyIncome) - CHARINDEX('-', PD.YearlyIncome, 0))\r\n\t\t\tWHEN CHARINDEX('greater than', PD.YearlyIncome, 0) > 0 THEN REPLACE(PD.YearlyIncome, 'greater than', '')\r\n\t\t\tELSE PD.YearlyIncome\r\n\t\tEND,\r\n\t[TotalChildren] = PD.TotalChildren,\r\n\t[NumberChildrenAtHome] = PD.NumberChildrenAtHome,\r\n\t[EnglishEducation] = PD.Education,\r\n\t[SpanishEducation] = CAST(ET.SpanishName AS NVARCHAR(40)),\r\n\t[FrenchEducation] = CAST(ET.FrenchName AS NVARCHAR(40)),\r\n\t[EnglishOccupation] = PD.Occupation,\r\n\t[SpanishOccupation] = OT.SpanishName,\r\n\t[FrenchOccupation] = OT.FrenchName,\r\n\t[HouseOwnerFlag] = PD.HomeOwnerFlag,\r\n\t[NumberCarsOwned] = PD.NumberCarsOwned,\r\n\t[AddressLine1] = A.AddressLine1,\r\n\t[AddressLine2] = A.AddressLine2,\r\n\t[Phone] = CASt(PP.PhoneNumber AS NVARCHAR(20)),\r\n\t[DateFirstPurchase] = PD.DateFirstPurchase,\r\n\t[CommuteDistance] = PD.CommuteDistance\r\nFROM \r\n\tSales.Customer C LEFT JOIN\r\n\tPerson.Person P ON\r\n\t\tP.BusinessEntityID = C.PersonID LEFT JOIN\r\n\tIntegration.PersonDemographics PD ON\r\n\t\tPD.BusinessEntityID = P.BusinessEntityID LEFT JOIN\r\n\tPerson.EmailAddress E ON\r\n\t\tE.BusinessEntityID = P.BusinessEntityID LEFT JOIN\r\n\tPerson.BusinessEntityAddress BEA ON\r\n\t\tBEA.BusinessEntityID = P.BusinessEntityID AND\r\n\t\tBEA.AddressTypeID = 2 LEFT JOIN\r\n\tPerson.Address A ON\r\n\t\tA.AddressID = BEA.AddressID \r\n\tCROSS APPLY\r\n\t(\r\n\t\tSELECT TOP 1\r\n\t\t\tPP.PhoneNumber\r\n\t\tFROM\r\n\t\t\tPerson.PersonPhone PP \r\n\t\tWHERE\r\n\t\t\tPP.BusinessEntityID = P.BusinessEntityID \r\n\t\tORDER BY\r\n\t\t\tPhoneNumberTypeID\r\n\t) PP LEFT JOIN\r\n\tPerson.StateProvince SP ON\r\n\t\tSP.StateProvinceID = A.StateProvinceID LEFT JOIN\r\n\tIntegration.EducationType ET ON \r\n\t\tET.Name = PD.Education LEFT JOIN\r\n\tIntegration.OccupationType OT ON \r\n\t\tOT.Name = PD.Occupation\r\nWHERE\r\n\tC.PersonID IS NOT NULL AND \r\n\tC.StoreID IS NULL\r\nORDER BY\r\n\tC.AccountNumber",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -3716,6 +3653,9 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"folder": {
+					"name": "SubPipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -4276,6 +4216,9 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "SubPipelines"
 				},
 				"annotations": []
 			},
@@ -5720,6 +5663,9 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"folder": {
+					"name": "SubPipelines"
+				},
 				"annotations": [],
 				"lastPublishTime": "2025-08-04T11:46:10Z"
 			},
@@ -6211,6 +6157,9 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "SubPipelines"
 				},
 				"annotations": []
 			},
