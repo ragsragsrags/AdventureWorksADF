@@ -536,6 +536,9 @@
 				]
 			}
 		],
+		"folder": {
+			"name": "SubPipelines"
+		},
 		"annotations": []
 	}
 }

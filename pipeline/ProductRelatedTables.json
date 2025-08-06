@@ -1417,6 +1417,9 @@
 				]
 			}
 		],
+		"folder": {
+			"name": "SubPipelines"
+		},
 		"annotations": [],
 		"lastPublishTime": "2025-08-04T11:46:10Z"
 	},

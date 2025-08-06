@@ -43,6 +43,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "SubPipelines"
+		},
 		"annotations": []
 	}
 }
