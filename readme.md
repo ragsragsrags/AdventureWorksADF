@@ -1,4 +1,4 @@
-This is an ETL workflow on OLTP Adventureworks database to a warehouse database for Azure Data Factory.  This is only the sales data (finance data is not included) and one-time only. This is to assume you have azure subscription.  Here are some relevant documents:
+This is an ETL workflow on Adventureworks database to a warehouse database in Azure Data Factory.  This is only the sales data (finance data is not included) and one-time only. This is to assume you have azure subscription.  Here are some relevant documents:
 
 Create server/database: https://learn.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal
 Connect to server: https://learn.microsoft.com/en-us/azure/azure-sql/database/connect-query-ssms?view=azuresql
@@ -7,13 +7,11 @@ I'm using the 2022 version of the database sample: https://learn.microsoft.com/e
 
 ![image](https://github.com/user-attachments/assets/412ab68b-9456-431d-b369-60cdc8fe64af)
 
-Restore the backup db first in the local sql server.  Run the updates: AdventureWorks2022_Updates.sql
+Restore the backup db first in the local sql server.  Run the updates: AdventureWorks2022_Updates.sql 
 
 Then, I've deployed it to the Azure Data Factory using this step: https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver17&tabs=ssms
 
 <img width="876" height="837" alt="image" src="https://github.com/user-attachments/assets/f7fbe3a8-5e40-47b3-8a8d-2c2a1250d14d" />
-
-Run this script to create Person.PersonDemomgraphics table and populate the data in the azure server: AdventureWorks2022_Updates.sql
 
 For the datawarehouse database, run this script to the local server and deploy to azure using the steps above: AdventureWorksDW2022_Database.sql 
 
@@ -39,6 +37,7 @@ Here are the changes:
       + Integration.EducationType
       + Integration.MonthOfYearType
       + Integration.OccupationType
+      + Integration.PersonDemographics
       + Integration.ProductCategoryType
       + Integration.ProductDescriptionType
       + Integration.ProductNameType
